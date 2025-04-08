@@ -60,9 +60,9 @@ func (s *Server) Run(ctx context.Context) error {
 func (s *Server) registerRoutes(context string) {
 	s.engine.Use(logging.Middleware(), gin.Logger(), recovery.Middleware())
 
-	s.engine.GET(fmt.Sprintf("/%s/%s", context, "/health"), health.CheckHandler())
-	s.engine.POST(fmt.Sprintf("/%s/%s", context, "/url"), shortner.CreateShortURL())
-	s.engine.GET(fmt.Sprintf("/%s/%s", context, "/url"), shortner.ReturnLongURL())
+	s.engine.GET(fmt.Sprintf("%s/%s", context, "health"), health.CheckHandler())
+	s.engine.POST(fmt.Sprintf("%s/%s", context, "url"), shortner.CreateShortURL())
+	s.engine.GET(fmt.Sprintf("%s/%s", context, "url"), shortner.ReturnLongURL())
 }
 
 func serverContext(ctx context.Context) context.Context {

@@ -23,7 +23,7 @@ func Server() ServerValues {
 	return ServerValues{
 		Protocol:        GetEnvStr("APP_PROTOCOL", "http"),
 		Host:            GetEnvStr("APP_HOST", "localhost"),
-		Context:         GetEnvStr("APP_CONTEXT", "api"),
+		Context:         GetEnvStr("APP_CONTEXT", "/api"),
 		Port:            GetEnvInt("APP_PORT", 8080),
 		TimeZone:        GetEnvStr("APP_TIME_ZONE", "UTC"),
 		ShutdownTimeout: 10 * time.Second,
