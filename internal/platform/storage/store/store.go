@@ -26,6 +26,7 @@ const CacheDuration = 6 * time.Hour
 
 // InitializeStore is initializing the store service and return a store pointer
 func InitializeStore() *StorageService {
+	log.Println(fmt.Sprintf("Initializing Redis client... %s", params.RedisHost))
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     params.RedisHost,
 		Password: params.RedisPass, // no password set
