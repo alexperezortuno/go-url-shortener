@@ -1,5 +1,5 @@
 services:
-  url-shortner:
+  url-shortener:
     container_name: urs-go
     build:
       context: .
