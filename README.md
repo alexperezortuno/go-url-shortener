@@ -40,7 +40,10 @@ go run main.go
 ```
 
 # With Redis (set REDIS_URL environment variable)
-REDIS_URL=redis://localhost:6379 go run main.go
+
+```bash
+export REDIS_URL=redis://localhost:6379 && go run main.go
+```
 
 🚀 API Endpoints
 
