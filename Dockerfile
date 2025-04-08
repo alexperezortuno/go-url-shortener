@@ -9,13 +9,13 @@ WORKDIR /go/src/github.com/alexperezortuno/go-url-shortener
 RUN go mod tidy
 RUN go env
 RUN go version
-RUN CGO_ENABLED=1 GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -o /go/bin/go-url-shortener
+RUN GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build ./dist/go-url-shortener cmd/api/main.go -o
 
 FROM alpine:3.21.3
 
 RUN apk add --no-cache sqlite bash
 
-COPY --from=builder /go/bin/go-url-shortener /usr/local/bin/go-url-shortener
+COPY --from=builder dist/go-url-shortener /usr/local/bin/go-url-shortener
 COPY --from=builder /go/src/github.com/alexperezortuno/go-url-shortener/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
