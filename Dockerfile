@@ -2,21 +2,21 @@ FROM golang:1.24-alpine AS builder
 
 RUN apk add --no-cache build-base git
 
-RUN git clone https://github.com/alexperezortuno/go-url-shortner.git /go/src/github.com/alexperezortuno/go-url-shortner --depth 1
+RUN git clone https://github.com/alexperezortuno/go-url-shortener.git /go/src/github.com/alexperezortuno/go-url-shortener --depth 1
 
-WORKDIR /go/src/github.com/alexperezortuno/go-url-shortner
+WORKDIR /go/src/github.com/alexperezortuno/go-url-shortener
 
 RUN go mod tidy
 RUN go env
 RUN go version
-RUN CGO_ENABLED=1 GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -o /go/bin/go-url-shortner
+RUN CGO_ENABLED=1 GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -o /go/bin/go-url-shortener
 
 FROM alpine:3.21.3
 
 RUN apk add --no-cache sqlite bash
 
-COPY --from=builder /go/bin/go-url-shortner /usr/local/bin/go-url-shortner
-COPY --from=builder /go/src/github.com/alexperezortuno/go-url-shortner/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY --from=builder /go/bin/go-url-shortener /usr/local/bin/go-url-shortener
+COPY --from=builder /go/src/github.com/alexperezortuno/go-url-shortener/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
