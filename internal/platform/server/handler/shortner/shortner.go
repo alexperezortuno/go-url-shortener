@@ -2,9 +2,9 @@ package shortner
 
 import (
 	"fmt"
+	"github.com/alexperezortuno/go-url-shortner/internal/config/environment"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/shortener"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/storage/store"
-	"github.com/alexperezortuno/go-url-shortner/tools/environment"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

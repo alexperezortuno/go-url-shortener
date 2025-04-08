@@ -3,12 +3,12 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/alexperezortuno/go-url-shortner/internal/config/environment"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/server/handler/health"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/server/handler/shortner"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/server/middleware/logging"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/server/middleware/recovery"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/storage/store"
-	"github.com/alexperezortuno/go-url-shortner/tools/environment"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -24,6 +24,7 @@ type Server struct {
 }
 
 func New(ctx context.Context, params environment.ServerValues) (context.Context, Server) {
+	params.SetGinMode()
 	srv := Server{
 		engine:          gin.New(),
 		httpAddr:        fmt.Sprintf("%s:%d", params.Host, params.Port),

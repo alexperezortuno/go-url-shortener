@@ -31,12 +31,13 @@ deployment. Supports custom short URLs, analytics, and Redis caching.
 # Clone the repo
 git clone https://github.com/alexperezortuno/go-url-shortener.git
 cd go-url-shortener
+go mod tidy
 ```
 
 # Start the server (default port :8080)
 
 ```bash
-go run main.go
+go run cmd/api/main.go
 ```
 
 # With Redis (set REDIS_URL environment variable)

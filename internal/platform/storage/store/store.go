@@ -3,7 +3,7 @@ package store
 import (
 	"context"
 	"fmt"
-	"github.com/alexperezortuno/go-url-shortner/tools/environment"
+	"github.com/alexperezortuno/go-url-shortner/internal/config/environment"
 	"github.com/go-redis/redis/v9"
 	"log"
 	"time"

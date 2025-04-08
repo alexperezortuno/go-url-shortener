@@ -1,0 +1,103 @@
+services:
+  url-shortner:
+    container_name: urs-go
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - REDIS_HOST=redis-master
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-myStrongPassword}
+      - REDIS_DATABASES=${REDIS_DATABASES:-2}
+    depends_on:
+      - redis-master
+    networks:
+      - urs_internal_net
+      - urs_public_net
+
+  redis-master:
+    image: redis:latest
+    container_name: urs-redis-master
+    command: [
+      "redis-server",
+      "--appendonly", "yes",
+      "--requirepass", "${REDIS_PASSWORD:-myStrongPassword}",
+      "--databases", "${REDIS_DATABASES:-2}"
+    ]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-myStrongPassword}", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks:
+      - urs_internal_net
+
+  redis-replica-1:
+    image: redis:latest
+    container_name: urs-redis-replica-1
+    command: [
+      "redis-server",
+      "--replicaof", "redis-master", "6379",
+      "--masterauth", "${REDIS_PASSWORD:-myStrongPassword}",
+      "--requirepass", "${REDIS_PASSWORD:-myStrongPassword}",
+      "--databases", "${REDIS_DATABASES:-2}"
+    ]
+    depends_on:
+      - redis-master
+    networks:
+      - urs_internal_net
+
+  redis-replica-2:
+    image: redis:latest
+    container_name: urs-redis-replica-2
+    command: [
+      "redis-server",
+      "--replicaof", "redis-master", "6379",
+      "--masterauth", "${REDIS_PASSWORD:-myStrongPassword}",
+      "--requirepass", "${REDIS_PASSWORD:-myStrongPassword}",
+      "--databases", "${REDIS_DATABASES:-2}"
+    ]
+    depends_on:
+      - redis-master
+    networks:
+      - urs_internal_net
+
+  redis-replica-3:
+    image: redis:latest
+    container_name: urs-redis-replica-3
+    command: [
+      "redis-server",
+      "--replicaof", "redis-master", "6379",
+      "--masterauth", "${REDIS_PASSWORD:-myStrongPassword}",
+      "--requirepass", "${REDIS_PASSWORD:-myStrongPassword}",
+      "--databases", "${REDIS_DATABASES:-2}"
+    ]
+    depends_on:
+      - redis-master
+    networks:
+      - urs_internal_net
+
+  redis-replica-4:
+    image: redis:latest
+    container_name: urs-redis-replica-4
+    command: [
+      "redis-server",
+      "--replicaof", "redis-master", "6379",
+      "--masterauth", "${REDIS_PASSWORD:-myStrongPassword}",
+      "--requirepass","${REDIS_PASSWORD:-myStrongPassword}",
+      "--databases", "${REDIS_DATABASES:-2}"
+    ]
+    depends_on:
+      - redis-master
+    networks:
+      - urs_internal_net
+
+networks:
+  urs_internal_net:
+    internal: true
+  urs_public_net:
+    driver: bridge
