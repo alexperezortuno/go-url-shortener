@@ -28,7 +28,7 @@ func Server() ServerValues {
 		TimeZone:        GetEnvStr("APP_TIME_ZONE", "UTC"),
 		ShutdownTimeout: 10 * time.Second,
 		RedisHost:       GetEnvStr("REDIS_HOST", "localhost:6379"),
-		RedisPass:       GetEnvStr("REDIS_PASS", ""),
+		RedisPass:       GetEnvStr("REDIS_PASSWORD", ""),
 		RedisDb:         GetEnvInt("REDIS_DB", 0),
 		Release:         GetEnvStr("RELEASE", "prod"),
 	}

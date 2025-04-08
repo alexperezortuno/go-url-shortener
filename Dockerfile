@@ -15,7 +15,7 @@ FROM alpine:3.21.3
 
 RUN apk add --no-cache sqlite bash
 
-COPY --from=builder dist/go-url-shortener /usr/local/bin/go-url-shortener
+COPY --from=builder /go/src/github.com/alexperezortuno/go-url-shortener/dist/go-url-shortener /usr/local/bin/go-url-shortener
 COPY --from=builder /go/src/github.com/alexperezortuno/go-url-shortener/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
