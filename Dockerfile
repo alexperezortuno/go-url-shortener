@@ -9,7 +9,7 @@ WORKDIR /go/src/github.com/alexperezortuno/go-url-shortener
 RUN go mod tidy
 RUN go env
 RUN go version
-RUN GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build ./dist/go-url-shortener cmd/api/main.go -o
+RUN GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -o ./dist/go-url-shortener cmd/api/main.go
 
 FROM alpine:3.21.3
 
