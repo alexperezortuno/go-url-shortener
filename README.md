@@ -48,8 +48,8 @@ export REDIS_URL=redis://localhost:6379 && go run main.go
 
 🚀 API Endpoints
 
-| Endpoint        | Method | Description                       | Example Request Body           |
-|-----------------|--------|-----------------------------------|--------------------------------|
-| `/shorten`      | POST   | Create a short URL                | {"url": "https://example.com"} |
-| `/{short_code}` | GET    | Redirect to original URL          | -                              |
-| `/analytics`    | GET    | Get usage statistics (if enabled) | -                              |
+| Endpoint          | Method | Description                       | Example Request Body           |
+|-------------------|--------|-----------------------------------|--------------------------------|
+| `/url/shorten`    | POST   | Create a short URL                | {"url": "https://example.com"} |
+| `/r/{short_code}` | GET    | Redirect to original URL          | -                              |
+| `/health`         | GET    | Get usage statistics (if enabled) | -                              |

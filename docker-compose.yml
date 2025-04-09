@@ -14,8 +14,8 @@ services:
       redis-master:
         condition: service_healthy  # Espera a que Redis esté listo
     networks:
-      - urs_internal_net
-      - urs_public_net
+      urs_public_net:
+      urs_internal_net:
 
   redis-master:
     image: redis:latest
