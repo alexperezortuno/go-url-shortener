@@ -32,7 +32,7 @@ func New(ctx context.Context, params environment.ServerValues) (context.Context,
 	}
 	store.InitializeStore()
 
-	log.Println(fmt.Sprintf("Check app in %s:%d/%s%s", params.Host, params.Port, params.Context, "health"))
+	log.Println(fmt.Sprintf("Check app in %s:%d%s/%s", params.Host, params.Port, params.Context, "health"))
 	srv.registerRoutes(params.Context)
 	return serverContext(ctx), srv
 }
