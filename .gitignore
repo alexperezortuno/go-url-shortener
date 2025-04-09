@@ -25,3 +25,4 @@ build/*
 # vendor/
 go.sum
 .env
+dist/
