@@ -18,6 +18,7 @@ type ServerValues struct {
 	RedisPass       string
 	RedisDb         int
 	Release         string
+	Cors            []string
 }
 
 func Server() ServerValues {
@@ -38,6 +39,7 @@ func Server() ServerValues {
 		RedisPass:       GetEnvStr("REDIS_PASSWORD", ""),
 		RedisDb:         GetEnvInt("REDIS_DB", 0),
 		Release:         GetEnvStr("RELEASE", "prod"),
+		Cors:            GetEnvStrArray("CORS", []string{"*"}),
 	}
 }
 

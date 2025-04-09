@@ -3,6 +3,7 @@ package environment
 import (
 	"os"
 	"strconv"
+	"strings"
 )
 
 func GetEnvStr(key, fallback string) string {
@@ -28,4 +29,19 @@ func GetEnvBool(key string, fallback bool) bool {
 		}
 	}
 	return fallback
+}
+
+func GetEnvStrArray(key string, fallback []string) []string {
+	if value, ok := os.LookupEnv(key); ok {
+		return splitString(value)
+	}
+	return fallback
+}
+
+func splitString(s string) []string {
+	var result []string
+	for _, str := range strings.Split(s, ",") {
+		result = append(result, strings.TrimSpace(str))
+	}
+	return result
 }

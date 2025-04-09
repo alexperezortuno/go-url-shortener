@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/alexperezortuno/go-url-shortner/internal/config/environment"
+	"github.com/alexperezortuno/go-url-shortner/internal/platform/middleware"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/server/handler/health"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/server/handler/shortner"
-	"github.com/alexperezortuno/go-url-shortner/internal/platform/server/middleware/logging"
-	"github.com/alexperezortuno/go-url-shortner/internal/platform/server/middleware/recovery"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/storage/store"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -58,8 +58,21 @@ func (s *Server) Run(ctx context.Context) error {
 }
 
 func (s *Server) registerRoutes(context string) {
-	s.engine.Use(logging.Middleware(), gin.Logger(), recovery.Middleware())
+	s.engine.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},                   // Dominios permitidos
+		AllowMethods:     []string{"GET", "POST"},                             // Métodos permitidos
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"}, // Headers permitidos
+		ExposeHeaders:    []string{"Content-Length"},                          // Headers expuestos
+		AllowCredentials: true,                                                // Permitir credenciales
+		MaxAge:           12 * time.Hour,                                      // Tiempo de cacheo de preflight
+	}))
 
+	// Middlewares
+	s.engine.Use(gin.Logger())
+	s.engine.Use(middleware.Logging())
+	s.engine.Use(middleware.Recovery())
+
+	// Routes
 	s.engine.GET(fmt.Sprintf("%s/%s", context, "health"), health.CheckHandler())
 	s.engine.POST(fmt.Sprintf("%s/%s", context, "url"), shortner.CreateShortURL())
 	s.engine.GET(fmt.Sprintf("%s/%s", context, "url"), shortner.ReturnLongURL())
