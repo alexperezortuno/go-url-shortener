@@ -25,7 +25,7 @@ func Server() ServerValues {
 		Protocol: GetEnvStr("APP_PROTOCOL", "http"),
 		Host:     GetEnvStr("APP_HOST", "localhost"),
 		Context: func() string {
-			ctx := GetEnvStr("APP_CONTEXT", "api")
+			ctx := GetEnvStr("APP_CONTEXT", "")
 			if ctx == "" {
 				return ""
 			}
