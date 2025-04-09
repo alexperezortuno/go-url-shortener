@@ -1,20 +1,20 @@
 services:
   url-shortener:
     container_name: urs-go
-    image: urs_go:dev
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
-      - REDIS_HOST="localhost:6379"
+      - REDIS_HOST=redis-master:6379  # ¡Sin comillas!
       - REDIS_PASSWORD=${REDIS_PASSWORD:-myStrongPassword}
-      - REDIS_DATABASES=${REDIS_DATABASES:-2}
+      - REDIS_DB=${REDIS_DB:-1}
     depends_on:
-      - redis-master
+      redis-master:
+        condition: service_healthy  # Espera a que Redis esté listo
     networks:
-      #- urs_internal_net
+      - urs_internal_net
       - urs_public_net
 
   redis-master:
@@ -35,8 +35,7 @@ services:
       timeout: 3s
       retries: 3
     networks:
-      #- urs_internal_net
-      - urs_public_net
+      - urs_internal_net
 
   redis-replica-1:
     image: redis:latest
