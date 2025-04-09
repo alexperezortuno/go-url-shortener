@@ -22,9 +22,15 @@ type ServerValues struct {
 
 func Server() ServerValues {
 	return ServerValues{
-		Protocol:        GetEnvStr("APP_PROTOCOL", "http"),
-		Host:            GetEnvStr("APP_HOST", "localhost"),
-		Context:         fmt.Sprintf("/%s", GetEnvStr("APP_CONTEXT", "api")),
+		Protocol: GetEnvStr("APP_PROTOCOL", "http"),
+		Host:     GetEnvStr("APP_HOST", "localhost"),
+		Context: func() string {
+			ctx := GetEnvStr("APP_CONTEXT", "api")
+			if ctx == "" {
+				return ""
+			}
+			return fmt.Sprintf("/%s", ctx)
+		}(),
 		Port:            GetEnvInt("APP_PORT", 8080),
 		TimeZone:        GetEnvStr("APP_TIME_ZONE", "UTC"),
 		ShutdownTimeout: 10 * time.Second,
