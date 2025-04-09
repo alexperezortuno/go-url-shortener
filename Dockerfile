@@ -2,8 +2,8 @@ FROM golang:1.24-alpine AS builder
 
 RUN apk add --no-cache build-base git
 
-RUN git clone https://github.com/alexperezortuno/go-url-shortener.git /go/src/github.com/alexperezortuno/go-url-shortener --depth 1
-
+#RUN git clone https://github.com/alexperezortuno/go-url-shortener.git /go/src/github.com/alexperezortuno/go-url-shortener --depth 1
+COPY . /go/src/github.com/alexperezortuno/go-url-shortener
 WORKDIR /go/src/github.com/alexperezortuno/go-url-shortener
 
 RUN go mod tidy

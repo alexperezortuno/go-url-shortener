@@ -29,12 +29,7 @@ func CreateShortURL() gin.HandlerFunc {
 		}
 
 		shortUrl := shortener.GenerateShortURL(request.LongURL, request.UserId)
-		strShortUrl := fmt.Sprintf("%s://%s:%d/%s/%s",
-			params.Protocol,
-			params.Host,
-			params.Port,
-			params.Context,
-			shortUrl)
+		strShortUrl := fmt.Sprintf("%s", shortUrl)
 		store.SaveURLInRedis(strShortUrl, request.LongURL)
 		ctx.JSON(http.StatusOK, gin.H{
 			"short_url": strShortUrl,
@@ -45,16 +40,20 @@ func CreateShortURL() gin.HandlerFunc {
 func ReturnLongURL() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		shortUrl := ctx.Request.URL.Query().Get("short_url")
-		strShortUrl := fmt.Sprintf("%s://%s:%d/%s/%s",
-			params.Protocol,
-			params.Host,
-			params.Port,
-			params.Context,
-			shortUrl)
+		strShortUrl := fmt.Sprintf("%s", shortUrl)
 		initialUrl := store.RetrieveInitialURLFromRedis(strShortUrl)
 		ctx.JSON(http.StatusOK, map[string]interface{}{
 			"short_url": shortUrl,
 			"long_url":  initialUrl,
 		})
+	}
+}
+
+func RedirectURL() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		shortUrl := ctx.Param("s")
+		strShortUrl := fmt.Sprintf("%s", shortUrl)
+		initialUrl := store.RetrieveInitialURLFromRedis(strShortUrl)
+		ctx.Redirect(http.StatusPermanentRedirect, initialUrl)
 	}
 }
