@@ -18,10 +18,6 @@ tracing:
     samplingType: "const"
     samplingParam: 1.0
     localAgentHostPort: "jaeger:6831"
-  otlp:
-    grpc:
-      insecure: true
-      endpoint: "otel-collector:4317"
 
 log:
   level: DEBUG
