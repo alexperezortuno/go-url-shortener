@@ -24,7 +24,7 @@ type ServerValues struct {
 func Server() ServerValues {
 	return ServerValues{
 		Protocol: GetEnvStr("APP_PROTOCOL", "http"),
-		Host:     GetEnvStr("APP_HOST", "localhost"),
+		Host:     GetEnvStr("APP_HOST", "0.0.0.0"),
 		Context: func() string {
 			ctx := GetEnvStr("APP_CONTEXT", "")
 			if ctx == "" {
