@@ -24,6 +24,7 @@ type Config struct {
 	CorsAllowsOrigin     []string
 	OtelExporterEndpoint string
 	ServiceName          string
+	TracingEnabled       bool
 }
 
 func LoadConfig() *Config {
@@ -47,6 +48,7 @@ func LoadConfig() *Config {
 		CorsAllowsOrigin:     GetEnvStrArray("CORS_ALLOW_ORIGIN", []string{"*"}),
 		OtelExporterEndpoint: GetEnvStr("OTEL_EXPORTER_OTLP_ENDPOINT", "otel-collector:4317"),
 		ServiceName:          GetEnvStr("SERVICE_NAME", "go-url-shortener"),
+		TracingEnabled:       GetEnvBool("TRACING_ENABLED", false),
 	}
 }
 

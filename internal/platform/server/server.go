@@ -9,6 +9,7 @@ import (
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/server/handler/health"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/server/handler/shortner"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/storage/store"
+	"github.com/alexperezortuno/go-url-shortner/internal/platform/tracing"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -26,6 +27,20 @@ type Server struct {
 
 func New(ctx context.Context, cfg *config.Config) (context.Context, Server) {
 	cfg.SetGinMode()
+
+	if cfg.TracingEnabled {
+		// Initialize tracing
+		shutdownTracer, err := tracing.InitTracer(ctx, cfg)
+		if err != nil {
+			log.Fatalf("failed to initialize tracer: %v", err)
+		}
+		defer func() {
+			if err := shutdownTracer(ctx); err != nil {
+				log.Printf("failed to shutdown tracer: %v", err)
+			}
+		}()
+	}
+
 	srv := Server{
 		engine:          gin.New(),
 		httpAddr:        fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
@@ -73,7 +88,9 @@ func (s *Server) registerRoutes(cfg *config.Config) {
 	s.engine.Use(gin.Logger())
 	s.engine.Use(middleware.Logging())
 	s.engine.Use(middleware.Recovery())
-	s.engine.Use(middleware.TracingMiddleware())
+	if cfg.TracingEnabled {
+		s.engine.Use(middleware.TracingMiddleware())
+	}
 
 	// Routes
 	s.engine.GET(fmt.Sprintf("%s/%s", ctx, commons.HealthPath), health.CheckHandler())
