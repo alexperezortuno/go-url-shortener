@@ -5,6 +5,13 @@ services:
       - "16686:16686" # UI
       - "4317:4317"   # OTLP gRPC
       - "4318:4318"   # OTLP HTTP
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jaeger.rule=Host(`localhost`)"
+#      - "traefik.http.routers.jaeger.rule=Host(`localhost`) && PathPrefix(`/jaeger`)"
+      - "traefik.http.services.jaeger.loadbalancer.server.port=16686"
+#      - "traefik.http.middlewares.jaeger-stripprefix.stripprefix.prefixes=/jaeger"
+#      - "traefik.http.routers.jaeger.middlewares=jaeger-stripprefix"
     environment:
       - COLLECTOR_OTLP_ENABLED=true
     networks:

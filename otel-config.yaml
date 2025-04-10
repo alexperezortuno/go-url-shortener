@@ -8,12 +8,15 @@ processors:
   batch:
 
 exporters:
-  logging:
-    logLevel: debug
+  debug:
+  otlp/jaeger:
+    endpoint: jaeger:4317 # Jaeger ahora soporta OTLP directamente
+    tls:
+      insecure: true
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging]
+      exporters: [otlp/jaeger, debug]
