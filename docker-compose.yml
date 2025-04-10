@@ -1,24 +1,45 @@
 services:
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=DEBUG"
+    ports:
+      - "80:80"  # Expose HTTP
+      - "8080:8080"  # Traefik Dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      proxy_net:
+      internal_net:
+
   url-shortener:
     container_name: urs-go
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.url-shortener.rule=Host(`localhost`) && PathPrefix(`/short`)"
+      - "traefik.http.services.url-shortener.loadbalancer.server.port=8081"
     environment:
-      - REDIS_HOST=redis-master:6379  # ¡Sin comillas!
+      - REDIS_HOST=redis-master:6379
       - REDIS_PASSWORD=${REDIS_PASSWORD:-myStrongPassword}
       - REDIS_DB=${REDIS_DB:-1}
+      - APP_PORT=8081
+      - APP_CONTEXT=short
+      - RELEASE=dev
     depends_on:
       redis-master:
         condition: service_healthy  # Espera a que Redis esté listo
     networks:
-      urs_public_net:
-      urs_internal_net:
+      internal_net:
 
   redis-master:
-    image: redis:latest
+    image: redis:7.2-alpine  # Versión específica y más ligera
     container_name: urs-redis-master
     ports:
       - "6379:6379"
@@ -34,11 +55,13 @@ services:
       interval: 5s
       timeout: 3s
       retries: 3
+    volumes:
+      - redis_data:/data  # Data persistence
     networks:
-      - urs_internal_net
+      internal_net:
 
   redis-replica-1:
-    image: redis:latest
+    image: redis:7.2-alpine
     container_name: urs-redis-replica-1
     command: [
       "redis-server",
@@ -50,10 +73,10 @@ services:
     depends_on:
       - redis-master
     networks:
-      - urs_internal_net
+      internal_net:
 
   redis-replica-2:
-    image: redis:latest
+    image: redis:7.2-alpine
     container_name: urs-redis-replica-2
     command: [
       "redis-server",
@@ -65,10 +88,10 @@ services:
     depends_on:
       - redis-master
     networks:
-      - urs_internal_net
+      internal_net:
 
   redis-replica-3:
-    image: redis:latest
+    image: redis:7.2-alpine
     container_name: urs-redis-replica-3
     command: [
       "redis-server",
@@ -80,10 +103,10 @@ services:
     depends_on:
       - redis-master
     networks:
-      - urs_internal_net
+      internal_net:
 
   redis-replica-4:
-    image: redis:latest
+    image: redis:7.2-alpine
     container_name: urs-redis-replica-4
     command: [
       "redis-server",
@@ -95,10 +118,14 @@ services:
     depends_on:
       - redis-master
     networks:
-      - urs_internal_net
+      internal_net:
+
+volumes:
+  redis_data:  # Volume for Redis persistence
 
 networks:
-  urs_internal_net:
+  internal_net:
     internal: true
-  urs_public_net:
-    driver: bridge
+  proxy_net:
+    driver:
+      bridge  # Use the default bridge driver

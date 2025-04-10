@@ -48,8 +48,34 @@ export REDIS_URL=redis://localhost:6379 && go run main.go
 
 🚀 API Endpoints
 
-| Endpoint          | Method | Description                       | Example Request Body           |
-|-------------------|--------|-----------------------------------|--------------------------------|
-| `/url/shorten`    | POST   | Create a short URL                | {"url": "https://example.com"} |
-| `/r/{short_code}` | GET    | Redirect to original URL          | -                              |
-| `/health`         | GET    | Get usage statistics (if enabled) | -                              |
+| Endpoint                       | Method | Description                       | Example Request                                     | Example Response Body                                            |
+|--------------------------------|--------|-----------------------------------|-----------------------------------------------------|------------------------------------------------------------------|
+| `/url?short_url=<SHORT_CODE> ` | GET    | Get more data from URL            | -                                                   | {"long_url": "https://example.com", "short_url": "<SHORT_CODE>"} |
+| `/url`                         | POST   | Create a short URL                | {"long_url": "https://example.com", "user_id": "1"} | {"short_url": "https://127.0.0.1/r/Eg4tQwFp"}                    |
+| `/r/<SHORT_CODE>`              | GET    | Redirect to original URL          | -                                                   | redirect to url                                                  |
+| `/health`                      | GET    | Get usage statistics (if enabled) |                                                     | {"message": "everything is ok"}                                  |
+
+### Docker
+
+#### Build the Docker image
+```bash
+docker build -t url-shortener:latest .
+```
+
+#### Create network
+
+```bash
+docker network create internal_net
+```
+
+#### Run the containers
+
+```bash
+docker-compose up --build -d
+```
+
+#### Stop the containers and re run
+
+```bash
+docker-compose down && docker-compose up --build -d
+```
