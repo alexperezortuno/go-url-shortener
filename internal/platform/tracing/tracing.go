@@ -2,6 +2,7 @@ package tracing
 
 import (
 	"context"
+	"fmt"
 	"github.com/alexperezortuno/go-url-shortner/internal/config"
 	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/otel"
@@ -12,6 +13,7 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // StartSpan initializes a span for a given handler and updates the request context.
@@ -30,12 +32,32 @@ func StartSpan(ctx *gin.Context, serviceName string, spanName string) {
 	ctx.Request = ctx.Request.WithContext(spanCtx)
 }
 
-func InitTracer(ctx context.Context, cfg *config.Config) (*sdktrace.TracerProvider, error) {
-	// Create OTLP exporter
-	exporter, err := otlptracegrpc.New(ctx,
+func InitTracer(ctx context.Context, cfg *config.Config) (func(context.Context) error, error) {
+	retryPolicy := `{
+        "methodConfig": [{
+            "name": [{"service": "opentelemetry.proto.collector.trace.v1.TraceService"}],
+            "waitForReady": true,
+            "retryPolicy": {
+                "MaxAttempts": 5,
+                "InitialBackoff": "1s",
+                "MaxBackoff": "5s",
+                "BackoffMultiplier": 2.0,
+                "RetryableStatusCodes": ["UNAVAILABLE"]
+            }
+        }]
+    }`
+
+	exporter, err := otlptracegrpc.New(
+		ctx,
 		otlptracegrpc.WithEndpoint(cfg.OtelExporterEndpoint),
-		otlptracegrpc.WithDialOption(grpc.WithBlock()),
+		otlptracegrpc.WithDialOption(
+			grpc.WithDefaultServiceConfig(retryPolicy),
+		),
+		otlptracegrpc.WithDialOption(
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+		),
 	)
+
 	if err != nil {
 		return nil, err
 	}
@@ -64,5 +86,13 @@ func InitTracer(ctx context.Context, cfg *config.Config) (*sdktrace.TracerProvid
 		propagation.Baggage{},
 	))
 
-	return tp, nil
+	// Función de shutdown para limpieza
+	shutdown := func(ctx context.Context) error {
+		if err := tp.Shutdown(ctx); err != nil {
+			return fmt.Errorf("failed to shutdown tracer provider: %w", err)
+		}
+		return nil
+	}
+
+	return shutdown, nil
 }

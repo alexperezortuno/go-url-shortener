@@ -14,14 +14,13 @@ func Run() error {
 
 	// Initialize tracing
 	ctx := context.Background()
-	tp, err := tracing.InitTracer(ctx, cfg)
+	shutdownTracer, err := tracing.InitTracer(ctx, cfg)
 	if err != nil {
-		log.Fatalf("Failed to initialize tracer: %v", err)
+		log.Fatalf("failed to initialize tracer: %v", err)
 	}
-
 	defer func() {
-		if err := tp.Shutdown(ctx); err != nil {
-			log.Printf("Error shutting down tracer provider: %v", err)
+		if err := shutdownTracer(ctx); err != nil {
+			log.Printf("failed to shutdown tracer: %v", err)
 		}
 	}()
 

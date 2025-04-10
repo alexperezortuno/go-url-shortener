@@ -131,9 +131,10 @@ services:
 
   url-shortener:
     container_name: urs-go
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: go_urls:dev
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.url-shortener.rule=Host(`localhost`) && PathPrefix(`/short`)"
