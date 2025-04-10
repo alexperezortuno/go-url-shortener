@@ -8,17 +8,17 @@ import (
 )
 
 type ServerValues struct {
-	Protocol        string
-	Host            string
-	Port            int
-	ShutdownTimeout time.Duration
-	Context         string
-	TimeZone        string
-	RedisHost       string
-	RedisPass       string
-	RedisDb         int
-	Release         string
-	Cors            []string
+	Protocol         string
+	Host             string
+	Port             int
+	ShutdownTimeout  time.Duration
+	Context          string
+	TimeZone         string
+	RedisHost        string
+	RedisPass        string
+	RedisDb          int
+	Release          string
+	CorsAllowsOrigin []string
 }
 
 func Server() ServerValues {
@@ -32,14 +32,14 @@ func Server() ServerValues {
 			}
 			return fmt.Sprintf("/%s", ctx)
 		}(),
-		Port:            GetEnvInt("APP_PORT", 8080),
-		TimeZone:        GetEnvStr("APP_TIME_ZONE", "UTC"),
-		ShutdownTimeout: 10 * time.Second,
-		RedisHost:       GetEnvStr("REDIS_HOST", "localhost:6379"),
-		RedisPass:       GetEnvStr("REDIS_PASSWORD", ""),
-		RedisDb:         GetEnvInt("REDIS_DB", 0),
-		Release:         GetEnvStr("RELEASE", "prod"),
-		Cors:            GetEnvStrArray("CORS", []string{"*"}),
+		Port:             GetEnvInt("APP_PORT", 8080),
+		TimeZone:         GetEnvStr("APP_TIME_ZONE", "UTC"),
+		ShutdownTimeout:  10 * time.Second,
+		RedisHost:        GetEnvStr("REDIS_HOST", "localhost:6379"),
+		RedisPass:        GetEnvStr("REDIS_PASSWORD", ""),
+		RedisDb:          GetEnvInt("REDIS_DB", 0),
+		Release:          GetEnvStr("RELEASE", "prod"),
+		CorsAllowsOrigin: GetEnvStrArray("CORS_ALLOW_ORIGIN", []string{"*"}),
 	}
 }
 

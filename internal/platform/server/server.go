@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/alexperezortuno/go-url-shortner/internal/commons"
 	"github.com/alexperezortuno/go-url-shortner/internal/config/environment"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/middleware"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/server/handler/health"
@@ -33,7 +34,7 @@ func New(ctx context.Context, params environment.ServerValues) (context.Context,
 	store.InitializeStore()
 
 	log.Println(fmt.Sprintf("Check app in %s:%d%s/%s", params.Host, params.Port, params.Context, "health"))
-	srv.registerRoutes(params.Context)
+	srv.registerRoutes(params)
 	return serverContext(ctx), srv
 }
 
@@ -57,14 +58,15 @@ func (s *Server) Run(ctx context.Context) error {
 	return srv.Shutdown(ctxShutDown)
 }
 
-func (s *Server) registerRoutes(context string) {
+func (s *Server) registerRoutes(p environment.ServerValues) {
+	ctx := p.Context
 	s.engine.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},                   // Dominios permitidos
-		AllowMethods:     []string{"GET", "POST"},                             // Métodos permitidos
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"}, // Headers permitidos
-		ExposeHeaders:    []string{"Content-Length"},                          // Headers expuestos
-		AllowCredentials: true,                                                // Permitir credenciales
-		MaxAge:           12 * time.Hour,                                      // Tiempo de cacheo de preflight
+		AllowOrigins:     p.CorsAllowsOrigin,       // Dominios permitidos
+		AllowMethods:     commons.AllowMethods,     // Métodos permitidos
+		AllowHeaders:     commons.AllowHeaders,     // Headers permitidos
+		ExposeHeaders:    commons.ExposeHeaders,    // Headers expuestos
+		AllowCredentials: commons.AllowCredentials, // Permitir credenciales
+		MaxAge:           commons.MaxAge,           // Tiempo de cacheo de preflight
 	}))
 
 	// Middlewares
@@ -73,10 +75,10 @@ func (s *Server) registerRoutes(context string) {
 	s.engine.Use(middleware.Recovery())
 
 	// Routes
-	s.engine.GET(fmt.Sprintf("%s/%s", context, "health"), health.CheckHandler())
-	s.engine.POST(fmt.Sprintf("%s/%s", context, "url"), shortner.CreateShortURL())
-	s.engine.GET(fmt.Sprintf("%s/%s", context, "url"), shortner.ReturnLongURL())
-	s.engine.GET(fmt.Sprintf("%s/%s/:s", context, "r"), shortner.RedirectURL())
+	s.engine.GET(fmt.Sprintf("%s/%s", ctx, commons.HealthPath), health.CheckHandler())
+	s.engine.POST(fmt.Sprintf("%s/%s", ctx, commons.UrlPath), shortner.CreateShortURL())
+	s.engine.GET(fmt.Sprintf("%s/%s", ctx, commons.UrlPath), shortner.ReturnLongURL())
+	s.engine.GET(fmt.Sprintf("%s/%s/:s", ctx, commons.ShortenerPath), shortner.RedirectURL())
 }
 
 func serverContext(ctx context.Context) context.Context {

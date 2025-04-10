@@ -2,7 +2,9 @@ package shortner
 
 import (
 	"fmt"
+	"github.com/alexperezortuno/go-url-shortner/internal/commons"
 	"github.com/alexperezortuno/go-url-shortner/internal/config/environment"
+	"github.com/alexperezortuno/go-url-shortner/internal/platform/errors"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/shortener"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/storage/store"
 	"github.com/gin-gonic/gin"
@@ -21,10 +23,7 @@ func CreateShortURL() gin.HandlerFunc {
 		var request URLCreationRequest
 
 		if err := ctx.BindJSON(&request); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"code":    "-1000",
-				"message": "invalid request",
-			})
+			ctx.JSON(http.StatusBadRequest, errors.NewCustomError(errors.BadRequest))
 			return
 		}
 
@@ -32,7 +31,12 @@ func CreateShortURL() gin.HandlerFunc {
 		strShortUrl := fmt.Sprintf("%s", shortUrl)
 		store.SaveURLInRedis(strShortUrl, request.LongURL)
 		ctx.JSON(http.StatusOK, gin.H{
-			"short_url": strShortUrl,
+			"short_url": fmt.Sprintf("%s://%s:%d%s/%s/%s", params.Protocol,
+				params.Host,
+				params.Port,
+				params.Context,
+				commons.ShortenerPath,
+				strShortUrl),
 		})
 	}
 }
