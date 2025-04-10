@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"fmt"
 	"github.com/alexperezortuno/go-url-shortner/internal/config"
 	"github.com/go-redis/redis/v9"
 	"log"
@@ -32,10 +31,10 @@ func InitializeStore(cfg *config.Config) *StorageService {
 
 	pong, err := rdb.Ping(ctx).Result()
 	if err != nil {
-		log.Println(fmt.Sprintf("Error init Redis: %v", err))
+		log.Printf("Error init Redis: %v", err)
 	}
 
-	log.Println(fmt.Sprintf("Redis started successfully: pong message = {%s}", pong))
+	log.Printf("Redis started successfully: pong message = {%s}", pong)
 	storeService.redisClient = rdb
 	return storeService
 }
@@ -43,16 +42,16 @@ func InitializeStore(cfg *config.Config) *StorageService {
 func SaveURLInRedis(shortURL, originalURL string) {
 	err := storeService.redisClient.Set(ctx, shortURL, originalURL, CacheDuration).Err()
 	if err != nil {
-		log.Println(fmt.Sprintf("Failed SaveURLInRedis | Error: %v - shortURL: %s - originalURL: %s\n",
-			err, shortURL, originalURL))
+		log.Printf("Failed SaveURLInRedis | Error: %v - shortURL: %s - originalURL: %s\n",
+			err, shortURL, originalURL)
 	}
 }
 
 func RetrieveInitialURLFromRedis(shortURL string) string {
 	result, err := storeService.redisClient.Get(ctx, shortURL).Result()
 	if err != nil {
-		log.Println(fmt.Sprintf("Failed RetrieveInitialURLFromRedis | Error: %v - shortURL: %s\n",
-			err, shortURL))
+		log.Printf("Failed RetrieveInitialURLFromRedis | Error: %v - shortURL: %s\n",
+			err, shortURL)
 	}
 	return result
 }

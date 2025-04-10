@@ -48,7 +48,7 @@ func New(ctx context.Context, cfg *config.Config) (context.Context, Server) {
 	}
 	store.InitializeStore(cfg)
 
-	log.Println(fmt.Sprintf("Check app in %s:%d%s/%s", cfg.Host, cfg.Port, cfg.Context, "health"))
+	log.Printf("Check app in %s:%d%s/%s", cfg.Host, cfg.Port, cfg.Context, "health")
 	srv.registerRoutes(cfg)
 	return serverContext(ctx), srv
 }

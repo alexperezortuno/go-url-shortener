@@ -26,15 +26,14 @@ func CreateShortURL(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		shortUrl := shortener.GenerateShortURL(request.LongURL, request.UserId)
-		strShortUrl := fmt.Sprintf("%s", shortUrl)
-		store.SaveURLInRedis(strShortUrl, request.LongURL)
+		store.SaveURLInRedis(shortUrl, request.LongURL)
 		ctx.JSON(http.StatusOK, gin.H{
 			"short_url": fmt.Sprintf("%s://%s:%d%s/%s/%s", cfg.Protocol,
 				cfg.Host,
 				cfg.Port,
 				cfg.Context,
 				commons.ShortenerPath,
-				strShortUrl),
+				shortUrl),
 		})
 	}
 }
@@ -42,8 +41,7 @@ func CreateShortURL(cfg *config.Config) gin.HandlerFunc {
 func ReturnLongURL() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		shortUrl := ctx.Request.URL.Query().Get("short_url")
-		strShortUrl := fmt.Sprintf("%s", shortUrl)
-		initialUrl := store.RetrieveInitialURLFromRedis(strShortUrl)
+		initialUrl := store.RetrieveInitialURLFromRedis(shortUrl)
 		ctx.JSON(http.StatusOK, map[string]interface{}{
 			"short_url": shortUrl,
 			"long_url":  initialUrl,
@@ -54,8 +52,7 @@ func ReturnLongURL() gin.HandlerFunc {
 func RedirectURL() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		shortUrl := ctx.Param("s")
-		strShortUrl := fmt.Sprintf("%s", shortUrl)
-		initialUrl := store.RetrieveInitialURLFromRedis(strShortUrl)
+		initialUrl := store.RetrieveInitialURLFromRedis(shortUrl)
 		ctx.Redirect(http.StatusPermanentRedirect, initialUrl)
 	}
 }
