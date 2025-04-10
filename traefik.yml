@@ -1,0 +1,27 @@
+api:
+  insecure: true
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+
+entryPoints:
+  web:
+    address: ":80"
+
+tracing:
+  serviceName: "traefik"
+  spanNameLimit: 0
+  jaeger:
+    samplingServerURL: "http://jaeger:5778/sampling"
+    samplingType: "const"
+    samplingParam: 1.0
+    localAgentHostPort: "jaeger:6831"
+  otlp:
+    grpc:
+      insecure: true
+      endpoint: "otel-collector:4317"
+
+log:
+  level: DEBUG

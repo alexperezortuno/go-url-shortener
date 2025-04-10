@@ -3,7 +3,7 @@ package store
 import (
 	"context"
 	"fmt"
-	"github.com/alexperezortuno/go-url-shortner/internal/config/environment"
+	"github.com/alexperezortuno/go-url-shortner/internal/config"
 	"github.com/go-redis/redis/v9"
 	"log"
 	"time"
@@ -20,16 +20,14 @@ var (
 	ctx          = context.Background()
 )
 
-var params = environment.Server()
-
 const CacheDuration = 6 * time.Hour
 
 // InitializeStore is initializing the store service and return a store pointer
-func InitializeStore() *StorageService {
+func InitializeStore(cfg *config.Config) *StorageService {
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     params.RedisHost,
-		Password: params.RedisPass, // no password set
-		DB:       params.RedisDb,   // use default DB
+		Addr:     cfg.RedisHost,
+		Password: cfg.RedisPass, // no password set
+		DB:       cfg.RedisDb,   // use default DB
 	})
 
 	pong, err := rdb.Ping(ctx).Result()

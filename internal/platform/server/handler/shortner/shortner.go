@@ -3,7 +3,7 @@ package shortner
 import (
 	"fmt"
 	"github.com/alexperezortuno/go-url-shortner/internal/commons"
-	"github.com/alexperezortuno/go-url-shortner/internal/config/environment"
+	"github.com/alexperezortuno/go-url-shortner/internal/config"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/errors"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/shortener"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/storage/store"
@@ -11,14 +11,12 @@ import (
 	"net/http"
 )
 
-var params = environment.Server()
-
 type URLCreationRequest struct {
 	LongURL string `json:"long_url" binding:"required"`
 	UserId  string `json:"user_id" binding:"required"`
 }
 
-func CreateShortURL() gin.HandlerFunc {
+func CreateShortURL(cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var request URLCreationRequest
 
@@ -31,10 +29,10 @@ func CreateShortURL() gin.HandlerFunc {
 		strShortUrl := fmt.Sprintf("%s", shortUrl)
 		store.SaveURLInRedis(strShortUrl, request.LongURL)
 		ctx.JSON(http.StatusOK, gin.H{
-			"short_url": fmt.Sprintf("%s://%s:%d%s/%s/%s", params.Protocol,
-				params.Host,
-				params.Port,
-				params.Context,
+			"short_url": fmt.Sprintf("%s://%s:%d%s/%s/%s", cfg.Protocol,
+				cfg.Host,
+				cfg.Port,
+				cfg.Context,
 				commons.ShortenerPath,
 				strShortUrl),
 		})

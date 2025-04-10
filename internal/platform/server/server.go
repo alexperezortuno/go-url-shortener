@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/alexperezortuno/go-url-shortner/internal/commons"
-	"github.com/alexperezortuno/go-url-shortner/internal/config/environment"
+	"github.com/alexperezortuno/go-url-shortner/internal/config"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/middleware"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/server/handler/health"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/server/handler/shortner"
@@ -24,17 +24,17 @@ type Server struct {
 	shutdownTimeout time.Duration
 }
 
-func New(ctx context.Context, params environment.ServerValues) (context.Context, Server) {
-	params.SetGinMode()
+func New(ctx context.Context, cfg *config.Config) (context.Context, Server) {
+	cfg.SetGinMode()
 	srv := Server{
 		engine:          gin.New(),
-		httpAddr:        fmt.Sprintf("%s:%d", params.Host, params.Port),
-		shutdownTimeout: params.ShutdownTimeout,
+		httpAddr:        fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
+		shutdownTimeout: cfg.ShutdownTimeout,
 	}
-	store.InitializeStore()
+	store.InitializeStore(cfg)
 
-	log.Println(fmt.Sprintf("Check app in %s:%d%s/%s", params.Host, params.Port, params.Context, "health"))
-	srv.registerRoutes(params)
+	log.Println(fmt.Sprintf("Check app in %s:%d%s/%s", cfg.Host, cfg.Port, cfg.Context, "health"))
+	srv.registerRoutes(cfg)
 	return serverContext(ctx), srv
 }
 
@@ -58,10 +58,10 @@ func (s *Server) Run(ctx context.Context) error {
 	return srv.Shutdown(ctxShutDown)
 }
 
-func (s *Server) registerRoutes(p environment.ServerValues) {
-	ctx := p.Context
+func (s *Server) registerRoutes(cfg *config.Config) {
+	ctx := cfg.Context
 	s.engine.Use(cors.New(cors.Config{
-		AllowOrigins:     p.CorsAllowsOrigin,       // Dominios permitidos
+		AllowOrigins:     cfg.CorsAllowsOrigin,     // Dominios permitidos
 		AllowMethods:     commons.AllowMethods,     // Métodos permitidos
 		AllowHeaders:     commons.AllowHeaders,     // Headers permitidos
 		ExposeHeaders:    commons.ExposeHeaders,    // Headers expuestos
@@ -73,10 +73,11 @@ func (s *Server) registerRoutes(p environment.ServerValues) {
 	s.engine.Use(gin.Logger())
 	s.engine.Use(middleware.Logging())
 	s.engine.Use(middleware.Recovery())
+	s.engine.Use(middleware.TracingMiddleware())
 
 	// Routes
 	s.engine.GET(fmt.Sprintf("%s/%s", ctx, commons.HealthPath), health.CheckHandler())
-	s.engine.POST(fmt.Sprintf("%s/%s", ctx, commons.UrlPath), shortner.CreateShortURL())
+	s.engine.POST(fmt.Sprintf("%s/%s", ctx, commons.UrlPath), shortner.CreateShortURL(cfg))
 	s.engine.GET(fmt.Sprintf("%s/%s", ctx, commons.UrlPath), shortner.ReturnLongURL())
 	s.engine.GET(fmt.Sprintf("%s/%s/:s", ctx, commons.ShortenerPath), shortner.RedirectURL())
 }
