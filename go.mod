@@ -3,6 +3,7 @@ module github.com/alexperezortuno/go-url-shortner
 go 1.24
 
 require (
+	github.com/DataDog/datadog-go v4.8.3+incompatible
 	github.com/gin-contrib/cors v1.7.5
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-redis/redis/v9 v9.0.0-rc.1
@@ -15,6 +16,7 @@ require (
 )
 
 require (
+	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/bytedance/sonic v1.13.2 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect

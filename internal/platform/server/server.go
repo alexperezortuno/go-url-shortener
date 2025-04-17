@@ -8,8 +8,9 @@ import (
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/middleware"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/server/handler/health"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/server/handler/shortner"
+	"github.com/alexperezortuno/go-url-shortner/internal/platform/services/metrics"
+	"github.com/alexperezortuno/go-url-shortner/internal/platform/services/tracing"
 	"github.com/alexperezortuno/go-url-shortner/internal/platform/storage/store"
-	"github.com/alexperezortuno/go-url-shortner/internal/platform/tracing"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -39,6 +40,11 @@ func New(ctx context.Context, cfg *config.Config) (context.Context, Server) {
 				log.Printf("failed to shutdown tracer: %v", err)
 			}
 		}()
+	}
+
+	if cfg.MetricsEnabled {
+		// Initialize metrics
+		metrics.InitializeMetricsService(cfg.MetricsAddress, cfg.MetricsTags)
 	}
 
 	srv := Server{

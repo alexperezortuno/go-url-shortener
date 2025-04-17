@@ -25,6 +25,9 @@ type Config struct {
 	OtelExporterEndpoint string
 	ServiceName          string
 	TracingEnabled       bool
+	MetricsEnabled       bool
+	MetricsAddress       string
+	MetricsTags          []string
 }
 
 func LoadConfig() *Config {
@@ -44,11 +47,14 @@ func LoadConfig() *Config {
 		RedisHost:            GetEnvStr("REDIS_HOST", "localhost:6379"),
 		RedisPass:            GetEnvStr("REDIS_PASSWORD", ""),
 		RedisDb:              GetEnvInt("REDIS_DB", 0),
-		Release:              GetEnvStr("RELEASE", "prod"),
+		Release:              GetEnvStr("RELEASE", "dev"),
 		CorsAllowsOrigin:     GetEnvStrArray("CORS_ALLOW_ORIGIN", []string{"*"}),
 		OtelExporterEndpoint: GetEnvStr("OTEL_EXPORTER_OTLP_ENDPOINT", "otel-collector:4317"),
 		ServiceName:          GetEnvStr("SERVICE_NAME", "go-url-shortener"),
 		TracingEnabled:       GetEnvBool("TRACING_ENABLED", false),
+		MetricsEnabled:       GetEnvBool("METRICS_ENABLED", false),
+		MetricsAddress:       GetEnvStr("METRICS_ADDRESS", "localhost:8125"),
+		MetricsTags:          GetEnvStrArray("METRICS_TAGS", []string{"env:" + GetEnvStr("RELEASE", "dev")}),
 	}
 }
 
