@@ -54,7 +54,14 @@ func LoadConfig() *Config {
 		TracingEnabled:       GetEnvBool("TRACING_ENABLED", false),
 		MetricsEnabled:       GetEnvBool("METRICS_ENABLED", false),
 		MetricsAddress:       GetEnvStr("METRICS_ADDRESS", "localhost:8125"),
-		MetricsTags:          GetEnvStrArray("METRICS_TAGS", []string{"env:" + GetEnvStr("RELEASE", "dev")}),
+		MetricsTags: func() []string {
+			tags := []string{"env:" + GetEnvStr("RELEASE", "dev")}
+			tags = append(tags, "service:url-shortener")
+			if GetEnvBool("METRICS_TAGS_ENABLED", false) {
+				tags = append(tags, GetEnvStrArray("METRICS_TAGS", []string{})...)
+			}
+			return tags
+		}(),
 	}
 }
 

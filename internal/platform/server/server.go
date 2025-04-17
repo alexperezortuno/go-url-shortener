@@ -45,6 +45,10 @@ func New(ctx context.Context, cfg *config.Config) (context.Context, Server) {
 	if cfg.MetricsEnabled {
 		// Initialize metrics
 		metrics.InitializeMetricsService(cfg.MetricsAddress, cfg.MetricsTags)
+		metricsCheck := metrics.GetInstance()
+		if !metricsCheck.HealthCheck() {
+			log.Fatal("Metrics service is not available")
+		}
 	}
 
 	srv := Server{
